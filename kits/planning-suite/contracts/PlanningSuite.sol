@@ -18,13 +18,21 @@ contract PlanningSuite is BetaKitBase {
     uint64 constant PCT64 = 10 ** 16;
     address constant ANY_ENTITY = address(-1);
 
+    // why is this over rifing the tokenCache in BetaKitBase?
     mapping (address => address) tokenCache;
+
+    // new tokenCache for both tokens
+    struct tokensCache {
+        MiniMeToken token;
+        MiniMeToken token2;
+    }
 
     // ensure alphabetic order
     enum PlanningApps { AddressBook, Allocations, DotVoting, Projects, Rewards }
 
     // Overload the DeployInstance event for easy grabing of all the things
     event DeployInstance(address dao, address indexed token, address vault, address voting);
+    event DeployTokens(address indexed token, address indexed token2, address owner);
 
     struct VoteParams {
         uint64 supportNeeded;
@@ -479,6 +487,13 @@ contract PlanningSuite is BetaKitBase {
         // Clean up template permissions
         cleanupPermission(acl, voting, dao, dao.APP_MANAGER_ROLE());
         cleanupPermission(acl, voting, acl, acl.CREATE_PERMISSIONS_ROLE());
+    }
+
+    //----------------------- My Helper Functions -----------------------
+    function cacheTokens(MiniMeToken _token, MiniMeToken _token2, address _owner) internal {
+        tokensCache.token = _token;
+        tokensCache.token2 = _token2;
+        emit DeployTokens(_token, _token2, _owner);
     }
 
 }
